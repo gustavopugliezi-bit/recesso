@@ -32,12 +32,50 @@ export interface NetworkPlayerState {
   y: number;
   z: number;
   rotation: number;
+  archetype: CharacterArchetype;
+  weapon: SchoolWeapon;
+  team: TeamName;
+  hp: number;
+  isNpc?: boolean;
 }
 
 export type NetworkPlayers = Record<string, NetworkPlayerState>;
 
-export interface PlayerMovedPayload extends NetworkPlayerState {}
+export interface PlayerMovedPayload {
+  x: number;
+  y: number;
+  z: number;
+  rotation: number;
+}
 
 export interface WorldUpdatePayload {
   players: NetworkPlayers;
 }
+
+export interface PlayerShootPayload {
+  playerId: string;
+  origin: Vector3;
+  direction: Vector3;
+}
+
+export interface PlayerHitPayload {
+  targetId: string;
+  hp: number;
+  shooterId: string;
+}
+
+export type CharacterArchetype =
+  | "nerd"
+  | "popular"
+  | "footballer"
+  | "strongman"
+  | "pick-me";
+
+export type SchoolWeapon =
+  | "Lapis Junior"
+  | "Caneta Azul"
+  | "Borracha"
+  | "Regua"
+  | "Marca-Texto";
+
+export type TeamName = "EQUIPE LAPIS" | "EQUIPE BORRACHA";

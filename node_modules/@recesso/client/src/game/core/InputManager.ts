@@ -6,6 +6,7 @@ export interface InputState {
   jump: boolean;
   sprint: boolean;
   isShooting: boolean;
+  shootPressed: boolean;
   mouseDeltaX: number;
   mouseDeltaY: number;
 }
@@ -19,6 +20,7 @@ export class InputManager {
     jump: false,
     sprint: false,
     isShooting: false,
+    shootPressed: false,
     mouseDeltaX: 0,
     mouseDeltaY: 0
   };
@@ -39,6 +41,7 @@ export class InputManager {
   public update(): void {
     this.currentInputs.mouseDeltaX = 0;
     this.currentInputs.mouseDeltaY = 0;
+    this.currentInputs.shootPressed = false;
   }
 
   public dispose(): void {
@@ -70,6 +73,7 @@ export class InputManager {
   private readonly handleMouseDown = (event: MouseEvent): void => {
     if (event.button === 0) {
       this.currentInputs.isShooting = true;
+      this.currentInputs.shootPressed = true;
     }
   };
 

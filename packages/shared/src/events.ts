@@ -2,6 +2,7 @@ export const ClientEvents = {
   JOIN_GAME: "client:join_game",
   PLAYER_INPUT: "client:player_input",
   PLAYER_MOVED: "client:player_moved",
+  PLAYER_SHOOT: "client:player_shoot",
   WEAPON_FIRE: "client:weapon_fire"
 } as const;
 

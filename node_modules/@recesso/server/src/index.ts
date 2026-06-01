@@ -2,13 +2,12 @@ import cors from "cors";
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
+import { GameRoom } from "./GameRoom.js";
 
 const PORT = 3000;
 const CLIENT_ORIGIN = "http://localhost:5173";
 const SERVER_TICK_RATE = 30;
 const TICK_INTERVAL_MS = 1000 / SERVER_TICK_RATE;
-
-const players: Record<string, { x: number; y: number; z: number }> = {};
 
 const app = express();
 
@@ -23,23 +22,14 @@ const io = new Server(httpServer, {
   }
 });
 
+const gameRoom = new GameRoom(io);
+
 io.on("connection", (socket) => {
-  console.log(`Jogador conectado: ${socket.id}`);
-
-  players[socket.id] = {
-    x: Math.random() * 4 - 2,
-    y: 0.9,
-    z: -4
-  };
-
-  socket.on("disconnect", () => {
-    delete players[socket.id];
-    console.log(`Jogador desconectado: ${socket.id}`);
-  });
+  gameRoom.handleConnection(socket);
 });
 
 setInterval(() => {
-  io.emit("WORLD_UPDATE", players);
+  gameRoom.emitWorldUpdate();
 }, TICK_INTERVAL_MS);
 
 httpServer.listen(PORT, () => {

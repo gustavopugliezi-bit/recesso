@@ -1,3 +1,10 @@
+import {
+  ClientEvents,
+  ServerEvents,
+  type PlayerHitPayload,
+  type PlayerMovedPayload,
+  type PlayerShootPayload
+} from "@recesso/shared";
 import { io, type Socket } from "socket.io-client";
 
 export interface RemotePlayerState {
@@ -9,10 +16,12 @@ export interface RemotePlayerState {
 
 export type RemotePlayersSnapshot = Record<string, RemotePlayerState>;
 export type WorldUpdateHandler = (players: RemotePlayersSnapshot) => void;
+export type PlayerHitHandler = (payload: PlayerHitPayload) => void;
 
 export class NetworkManager {
   private readonly socket: Socket;
   private worldUpdateHandler: WorldUpdateHandler | null = null;
+  private playerHitHandler: PlayerHitHandler | null = null;
 
   public constructor() {
     this.socket = io("http://localhost:3000");
@@ -22,8 +31,11 @@ export class NetworkManager {
     });
 
     this.socket.on("WORLD_UPDATE", (data: unknown) => {
-      console.log("Estado Mundial Recebido:", data);
       this.worldUpdateHandler?.(this.normalizeWorldUpdate(data));
+    });
+
+    this.socket.on(ServerEvents.PLAYER_HIT, (payload: PlayerHitPayload) => {
+      this.playerHitHandler?.(payload);
     });
   }
 
@@ -31,8 +43,29 @@ export class NetworkManager {
     return this.socket.id;
   }
 
+  public emitPlayerMoved(payload: PlayerMovedPayload): void {
+    this.socket.emit(ClientEvents.PLAYER_MOVED, payload);
+  }
+
+  public emitPlayerShoot(payload: Omit<PlayerShootPayload, "playerId">): void {
+    const playerId = this.socket.id;
+
+    if (!playerId) {
+      return;
+    }
+
+    this.socket.emit(ClientEvents.PLAYER_SHOOT, {
+      playerId,
+      ...payload
+    });
+  }
+
   public onWorldUpdate(handler: WorldUpdateHandler): void {
     this.worldUpdateHandler = handler;
+  }
+
+  public onPlayerHit(handler: PlayerHitHandler): void {
+    this.playerHitHandler = handler;
   }
 
   public disconnect(): void {

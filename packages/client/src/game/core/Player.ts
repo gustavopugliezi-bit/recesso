@@ -18,8 +18,6 @@ export class Player {
   private readonly head = new THREE.Group();
   private readonly weapon = new Caneto();
   private readonly yawQuaternion = new THREE.Quaternion();
-  private readonly fireOrigin = new THREE.Vector3();
-  private readonly fireDirection = new THREE.Vector3();
   private yaw = Math.PI;
   private pitch = 0;
 
@@ -50,7 +48,6 @@ export class Player {
     this.updateMovement();
     this.updateJump();
     this.syncCamera();
-    this.updateWeapon();
     this.weapon.update(deltaTime);
   }
 
@@ -120,16 +117,6 @@ export class Player {
     }
 
     this.body.applyImpulse({ x: 0, y: JUMP_IMPULSE, z: 0 }, true);
-  }
-
-  private updateWeapon(): void {
-    if (!this.inputManager.currentInputs.isShooting) {
-      return;
-    }
-
-    this.camera.getWorldPosition(this.fireOrigin);
-    this.camera.getWorldDirection(this.fireDirection);
-    this.weapon.fire(this.fireOrigin, this.fireDirection, this.scene);
   }
 
   private isGrounded(): boolean {
